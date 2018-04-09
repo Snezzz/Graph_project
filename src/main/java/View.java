@@ -13,6 +13,7 @@ public class View {
         euclid_Y=mercY(input_lat);
     }
    static double  mercX(double lon) {
+
         return R_MAJOR * Math.toRadians(lon);
     }
 
