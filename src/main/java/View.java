@@ -2,7 +2,7 @@
 public class View {
     final private static double R_MAJOR = 6378137.0;
     final private static double R_MINOR = 6356752.3142;
-    final public static double Multiplier = 3E-2; //чем больше первое число, чем больше масштаб
+    final public static double Multiplier = 10E-2; //чем больше первое число, тем больше масштаб
     public static double lat, lon, euclid_X, euclid_Y;
     public static double X, Y;
 
@@ -33,7 +33,7 @@ public class View {
         double com = 0.5 * eccent;
         con = Math.pow(((1.0-con)/(1.0+con)), com);
         double ts = Math.tan(0.5 * ((Math.PI*0.5) - phi))/con;
-        double y = 0 - R_MAJOR * Math.log(ts);
+        double y =  0 - R_MAJOR * Math.log(ts);
         return y;
     }
 
