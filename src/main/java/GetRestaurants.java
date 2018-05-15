@@ -51,8 +51,6 @@ public class GetRestaurants  extends DefaultHandler {
         go=true;
         parser.parse(new File("map3.xml"), handler);
         get(objects,ten_objects);
-      //  get(objects_more,ten_objects);
-
         Iterator iterator = ten_objects.entrySet().iterator();
         int j=0;
         String way_id,point="";
@@ -61,20 +59,8 @@ public class GetRestaurants  extends DefaultHandler {
             Map.Entry pair = (Map.Entry) iterator.next();
             String id=pair.getKey().toString(); //точка ресторана
             String value=pair.getValue().toString(); //ближайшая точка к ресторану
-
-           // if(LogicClass.nodes.containsKey(id))
-            //way_id=LogicClass.nodes.get(id); //получаем путь, по которому доедем до кафе
-
-            //else{
                 way_id=LogicClass.nodes.get(value);
-            //}
-          /*if(way_id==null){
-              restaurant_position.put(id,"not");
-          }
-            else
-            */
             if(LogicClass.start.containsKey(way_id)){
-
                 point=LogicClass.start.get(way_id);//startpoint
                 restaurant_position.put(value,point); //от point к value
               if(!LogicClass.adjacency.containsKey(value)){
@@ -141,12 +127,10 @@ public class GetRestaurants  extends DefaultHandler {
                   if(!point.equals(id)) {
                       //ближайшей к ресторану точке ставим в соответсвие начальную точку пути и расположение кафе
                       LogicClass.adjacency.put(value, point + ";" + id);//делаем их смежными
-                     // System.out.println("point="+LogicClass.adjacency.get(point));
                      LogicClass.adjacency.put(point,value);
                   }
                   else {
                       LogicClass.adjacency.put(value, id);//делаем их смежными
-                      //System.out.println("point="+LogicClass.adjacency.get(point));
                       LogicClass.adjacency.put(point, id);
                   }
               }
@@ -166,6 +150,7 @@ public class GetRestaurants  extends DefaultHandler {
 
 
         }
+        //заполняем матрицу расстояний между токами смежными
         Map <Long, Double>ne;
         double w;
         Iterator iterator3 = LogicClass.adjacency.entrySet().iterator();
@@ -202,71 +187,6 @@ public class GetRestaurants  extends DefaultHandler {
     public static void get(Map<String,String> map1, Map<String,String> map2){
         Iterator iterator = map1.entrySet().iterator();
         int j=0;
-        /*
-        while ((iterator.hasNext()) ){
-            Map.Entry pair = (Map.Entry) iterator.next();
-            //Х.О.
-            if(pair.getKey().toString().equals("3938428654")){
-                map2.put(pair.getKey().toString(),"4278751799"); //связываем точку кафе с ближайшей точкой
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-            //Красный Лев++++
-            if(pair.getKey().toString().equals("2824824491")){
-                map2.put(pair.getKey().toString(),"4032540070");
-
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-            //Старый двор+
-            if(pair.getKey().toString().equals("3037395584")){
-                map2.put(pair.getKey().toString(),"3704224375");
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-
-            //Колизей++
-            if(pair.getKey().toString().equals("1224333897")){
-                map2.put(pair.getKey().toString(),"2386827168");
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-
-            //Роза Ветров+
-            if(pair.getKey().toString().equals("1667384467")){
-                map2.put(pair.getKey().toString(),"1228491043");
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-
-            //Дубинин+
-            if(pair.getKey().toString().equals("2888549560")){
-                map2.put(pair.getKey().toString(),"4420626171");
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-
-            //Семейный ресторан+
-            if(pair.getKey().toString().equals("2391545016")){
-                map2.put(pair.getKey().toString(),"3826001558");
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-
-            //Арай+
-            if(pair.getKey().toString().equals("2447278579")){
-                map2.put(pair.getKey().toString(),"4340763429");
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-
-            //Регистан
-            if(pair.getKey().toString().equals("2808978617")){
-                map2.put(pair.getKey().toString(),"2884716596");
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-
-            //Золотой причал+
-            if(pair.getKey().toString().equals("3687106408")){
-                map2.put(pair.getKey().toString(),"3095995559");
-                objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
-            }
-
-            j++;
-        }
-        */
         while ((iterator.hasNext()) ){
             Map.Entry pair = (Map.Entry) iterator.next();
             //Х.О.
@@ -299,8 +219,8 @@ public class GetRestaurants  extends DefaultHandler {
             }
 
             //Дубинин+
-            if(pair.getKey().toString().equals("1272959450")){
-                map2.put(pair.getKey().toString(),"2499939827");
+            if(pair.getKey().toString().equals("3739263986")){
+                map2.put(pair.getKey().toString(),"2398385555");
                 objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
             }
 
@@ -311,14 +231,14 @@ public class GetRestaurants  extends DefaultHandler {
             }
 
             //Арай+
-            if(pair.getKey().toString().equals("2503395216")){
-                map2.put(pair.getKey().toString(),"2533523851");
+            if(pair.getKey().toString().equals("2399261882")){
+                map2.put(pair.getKey().toString(),"2463390188");
                 objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
             }
-
+//меняла
             //Регистан
-            if(pair.getKey().toString().equals("1045191608")){
-                map2.put(pair.getKey().toString(),"1064712710");
+            if(pair.getKey().toString().equals("3221374458")){
+                map2.put(pair.getKey().toString(),"317512622");
                 objects_coordinates.put(pair.getKey().toString(),coordinates.get(pair.getKey().toString()));
             }
 
@@ -383,11 +303,6 @@ public class GetRestaurants  extends DefaultHandler {
                     point = String.valueOf(values.get(count - 1)); //id одной из точек области
                     objects_more.put(point, "restaurant");
                 }
-                //if (amount != 10) {
-
-                //objects.put();
-                //     amount++;
-                //  }
             }
 
 
@@ -395,19 +310,6 @@ public class GetRestaurants  extends DefaultHandler {
 
 
     }
-    }
-
-    @Override
-    public void endElement(String uri, String localName,
-                           String qName) throws SAXException {
-/*
-        if(qName=="way"){
-            nd_count=count;
-            count=0;
-            c.put(way_id,nd_count);
-            System.out.println(tag_count);
-        }
-*/
     }
 }
 

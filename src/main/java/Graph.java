@@ -46,7 +46,6 @@ public class Graph extends JFrame {
     double print_X,print_Y;
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
 
-
         long start_time = System.currentTimeMillis();
         logicClass=new LogicClass();
         R=new GetRestaurants();
@@ -101,7 +100,7 @@ public class Graph extends JFrame {
         text3=new JLabel("или нажмите на карте");
         text.setBounds(20,0,1000,10);
         text2.setBounds(20,10,1000,10);
-        text3.setBounds(20,160,1000,20);
+        text3.setBounds(20,200,1000,20);
         panel=new JPanel();
         panel.setBackground(Color.white);
 
@@ -118,10 +117,12 @@ public class Graph extends JFrame {
 
         x_coordinates.setBounds(35,95,20 ,20);
         y_coordinates.setBounds(85,95,20,20);
-        JButton take=new JButton("Let's go!");
+        JButton take=new JButton("Получить ближайший ресторан!");
+        JButton take_all_ways=new JButton("Получить путь от текущего склада!");
         take.setVisible(true);
-        take.setBounds(20,140,100,20);
-
+        take_all_ways.setVisible(true);
+        take.setBounds(20,140,170,20);
+        take_all_ways.setBounds(20,170,170,20);
         panel.add(text);
         panel.add(text2);
         panel.add(text3);
@@ -130,33 +131,15 @@ public class Graph extends JFrame {
         panel.add(for_y);
         panel.add(y_coordinates);
         panel.add(take);
+        panel.add(take_all_ways);
 
         ActionListener actionListener = new TakeActionListener();
         take.addActionListener(actionListener);
-
+        ActionListener actionListener2 = new TakeActionListener2();
+        take_all_ways.addActionListener(actionListener2);
         frame2.add(panel);
-        //frame.add(frame2);
-//        frame2.add(panel);
-        //frame.add(frame2);
         frame.setVisible(true);
         frame2.setVisible(true);
-
-       // logicClass.D(logicClass.adjacency,"1008916451","1009191490");
-/*
-
-
-        x=width/2;
-        y=height/2;
-
-        Graph frame = new Graph();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(width, height);
-
-        Panel panel=new Panel();
-        panel.setVisible(true);
-        frame.add(panel);
-        frame.setVisible(true);
-        */
 
         long finish_time = System.currentTimeMillis();
         System.out.format("%d ms", finish_time - start_time);
@@ -317,7 +300,8 @@ System.out.println("количество="+col);
                 x = (int) getX;
                 y = (int) getY;
                 try {
-                    search_way(x,y);
+                  //  search_way(x,y);
+                    search_way_from(x,y); //3 задание
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -330,6 +314,8 @@ System.out.println("количество="+col);
 
 
     }
+
+
     public static void search_way(int x,int y) throws IOException {
 
         /*if(second_step){
@@ -392,11 +378,60 @@ System.out.println("количество="+col);
         writer2.close();
 
     }
+
+    //громадный путь из маленьких путей
+    public static void search_way_from(int x,int y) throws IOException {
+        point= new Point(x, y);
+        neighbor=logicClass.get_place(x,y,coordinates); //определяем ближайшего к точке соседа
+        //logicClass.adjacency.put("current",neighbor); //занесли текущую точку и ее соседа
+        v2=graph.insertVertex(parent, null,"fromHere", point.x , point.y, 3   , 3,"fillColor=firebrick");
+        String []dh=coordinates.get(neighbor).toString().split(",");
+        String []dh2=LogicClass.coordinates.get(neighbor).toString().split(",");
+        graph.insertVertex(parent, null,"from", Double.parseDouble(dh[0]) ,Double.parseDouble(dh[1]), 10   , 10,"fillColor=firebrick");
+        long start_time = System.currentTimeMillis();
+        logicClass.neighbor_algorithm(neighbor);
+        long finish_time = System.currentTimeMillis();
+        System.out.println("Время поиска путей:"+(finish_time-start_time));
+        if(logicClass.near_restaurant!=null) {
+//визуализация пути
+            Iterator iterator3 = logicClass.main_way.entrySet().iterator();
+
+            int step=1;
+            while (iterator3.hasNext()) {
+                System.out.println(step);
+                Map.Entry pair = (Map.Entry) iterator3.next();
+                String[] points = pair.getValue().toString().split("-"); //получаем каждый путь
+                vertexes = new Object[points.length];
+                //для каждой вершины данного пути производим прорисовку пути
+
+
+                    for (int i = 0; i < points.length; i++) {
+                        if (coordinates.containsKey(points[i])) {
+                            String[] coord = coordinates.get(points[i]).split(",");
+                            if (i == 0) {
+                                vertexes[i] = graph.insertVertex(parent, null, "step="+step, Double.parseDouble(coord[0]), Double.parseDouble(coord[1]), 3, 3, "fillColor=yellow");
+                            } else {
+                                vertexes[i] = graph.insertVertex(parent, null, "", Double.parseDouble(coord[0]), Double.parseDouble(coord[1]), 3, 3, "fillColor=yellow");
+                            }
+                            if (i > 0) {
+                                graph.insertEdge(parent, null, "", vertexes[i - 1], vertexes[i], "strokeColor=red"); //v1->v2
+                            }
+                        } else {
+                            graph.insertEdge(parent, null, "", v2, vertexes[points.length - 2], "strokeColor=red"); //v1->v2
+
+                        }
+                    }
+                    step++;
+                }
+
+
+            }
+        }
     static double get_time(double d){
         //111км в одном градусе
         //умножаю координаты на 1000. 1PX = 1000 m =1 km
         //в метрах!
-        System.out.println("расстояние="+d);
+      //  System.out.println("расстояние="+d);
         int hours=0;
         int seconds=0;
         double minutes=0;
@@ -408,7 +443,7 @@ System.out.println("количество="+col);
      //   String s=String.valueOf(d);
      //   String []dd=s.split(".");
         minutes=60*d/40;
-        System.out.println("результат="+minutes);
+        //System.out.println("результат="+minutes);
         int m=(int)minutes;
         double s=minutes-m;
         s=s*100;
@@ -666,6 +701,20 @@ System.out.println("количество="+col);
                 e1.printStackTrace();
             }
         }
+
+    }
+    public static class TakeActionListener2 implements ActionListener{
+        int x,y;
+        public void actionPerformed(ActionEvent e) {
+            x=Integer.parseInt(x_coordinates.getText());
+            y=Integer.parseInt(y_coordinates.getText());
+            try {
+            search_way_from(x,y);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+
     }
 
 }

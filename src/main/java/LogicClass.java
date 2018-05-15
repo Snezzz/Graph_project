@@ -64,7 +64,9 @@ public class LogicClass extends DefaultHandler {
     static Map<Integer, Integer> g = new TreeMap<Integer, Integer>();
     static Map<String, String> ways_to_restaurant = new TreeMap<String, String>();
     static public double[][] distance2;
-
+    static double minimal_distance;
+    static Map<String, String> main_way;
+    static Map<Long, Boolean> visited_point;
     public static void go() throws ParserConfigurationException, IOException, SAXException {
 
 
@@ -168,7 +170,6 @@ public class LogicClass extends DefaultHandler {
         System.out.println("ready");
         writer1= new CSVWriter(new FileWriter(csv6));
     }
-
 
     public static void get(Map<String, String> map1, Map<String, String> map2) {
 
@@ -614,7 +615,7 @@ public class LogicClass extends DefaultHandler {
         d.put(Long.parseLong(s), 0.0);
         long current, index = 0;
         current = Long.parseLong(s);
-        System.out.println("current=" + current);
+       // System.out.println("current=" + current);
         //обращаемся к каждой вершине
         Set <Long> q=new LinkedHashSet<Long>();
         q.add(current);
@@ -644,7 +645,80 @@ public class LogicClass extends DefaultHandler {
         }
      get_way(s,t,p,d);
     }
+    public static void to_first_point(Map<Long, Map<Long, Double>> map, Map<String, Double> map2, String s, String t) throws IOException {
+        //map1 - текущая точка
+        //map2 - расстояния между всеми точками
+        //s-начальная точка
+        //t- набор кафе
+        int length = map.size(); //10
+        boolean[] visited = new boolean[length];
+        Map<Long, Boolean> visited2 = new TreeMap<Long, Boolean>();
+        Map<Long, Long> p = new TreeMap<Long, Long>();
+        int end = 0;
+        Map<Long, Double> d = new TreeMap<Long, Double>(); //кратчайшие пути
+        Iterator iterator1 = map.entrySet().iterator();
+        while (iterator1.hasNext()) {
+            Map.Entry pair = (Map.Entry) iterator1.next();
+            d.put(Long.parseLong(pair.getKey().toString()), 2000000000000.0);
+            visited2.put(Long.parseLong(pair.getKey().toString()), false);
+        }
+        double new_d, help = 0;
+        int h = 0;
+        double min;
+        int s2 = 0, place = 0;
+        //определяем положение начальной точки и конечных точек(индексы)
+        int i = 0;
+        //place2= new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        //place=0;
 
+        d.put(Long.parseLong(s), 0.0);
+        long current, index = 0;
+        current = Long.parseLong(s);
+        System.out.println("current=" + current);
+        //обращаемся к каждой вершине
+        Set <Long> q=new LinkedHashSet<Long>();
+        q.add(current);
+        while(!q.isEmpty()){
+            current = q.iterator().next();
+            q.remove(current);
+            Map<Long, Double> current_map = map.get(current); //получили карту с соседями и расстояниями до них
+            Iterator iterat = current_map.entrySet().iterator();
+            long to = 0;
+            //для каждого соседа current_map
+            while (iterat.hasNext()) {
+                Map.Entry pair4 = (Map.Entry) iterat.next();
+                String[] inf = pair4.getKey().toString().split("-");
+                to = Long.parseLong(pair4.getKey().toString());
+                if (d.containsKey(to)) {
+                    if (visited2.get(to).equals(false)) {
+                        new_d = d.get(current) + Double.parseDouble(pair4.getValue().toString());
+                        if (new_d < d.get(to)) {
+                            // q.remove(to);
+                            d.put(to, new_d); //длины кратчайших путей до всех вершин
+                            p.put(to, current);
+                            q.add(to);
+                        }
+                    }
+                }
+            }
+        }
+        Vector<Long> path = new Vector<Long>();
+        for (long v = Long.parseLong(t); v != Long.parseLong(s); v = p.get(v)) {
+            path.add(v);
+        }
+        path.add(Long.parseLong(s));
+        //cчитаем длину кратчайшего расстояния
+        for (int k = 0; k < path.size(); k++) {
+            if (ways_to_restaurant.containsKey(t)) {
+                ways_to_restaurant.put(t, ways_to_restaurant.get(t) + "-" + String.valueOf(path.get(k))); //для отображения на карте
+            } else {
+                ways_to_restaurant.put(t, String.valueOf(path.get(k)));
+            }
+        }
+        near_restaurant=t;
+        your_way = ways_to_restaurant.get(t); //получили список индексов точек
+        minimal_distance=d.get(path.firstElement());
+    }
     public static void get_way(String s,String []t,Map <Long,Long> p,Map<Long,Double> d) throws IOException {
 
         int t_length=t.length;
@@ -657,45 +731,53 @@ public class LogicClass extends DefaultHandler {
         CSVWriter writer2 = new CSVWriter(new FileWriter(csv3));
         //для каждой конечной точки
         for(int j=0;j<t_length;j++) {
-            path = new Vector<Long>();
-            //получаем предков до начальной точки
-            for (long v=Long.parseLong(t[j]); v!=Long.parseLong(s); v=p.get(v)) {
-                path.add(v);
-                if (!p.containsKey(v)) {
-                 //   System.out.print("Нет пути");
-                    break;
+            if (!visited_point.containsKey(Long.valueOf(t[j]))) {
+                path = new Vector<Long>();
+                //получаем предков до начальной точки
+                for (long v = Long.parseLong(t[j]); v != Long.parseLong(s); v = p.get(v)) {
+                    path.add(v);
+                    if (!p.containsKey(v)) {
+                        System.out.print("Нет пути");
+                        break;
+                    }
                 }
-            }
-            path.add(Long.parseLong(s));
-            //cчитаем длину кратчайшего расстояния
-            for (int k = 0; k< path.size();k++) {
-                if(ways_to_restaurant.containsKey(t[j])) {
-                    ways_to_restaurant.put(t[j],ways_to_restaurant.get(t[j])+"-"+ String.valueOf(path.get(k))); //для отображения на карте
-                }
-                else{
-                    ways_to_restaurant.put(t[j], String.valueOf(path.get(k)));
-                }
+                path.add(Long.parseLong(s));
+                //cчитаем длину кратчайшего расстояния
+                for (int k = 0; k < path.size(); k++) {
+                    if (ways_to_restaurant.containsKey(t[j])) {
+                        ways_to_restaurant.put(t[j], ways_to_restaurant.get(t[j]) + "-" + String.valueOf(path.get(k))); //для отображения на карте
+                    } else {
+                        ways_to_restaurant.put(t[j], String.valueOf(path.get(k)));
+                    }
 
-            }
+                }
 
                 String[] result2 = new String[]{t[j] + ":" + ways_to_restaurant.get(t[j])};
                 //  String[] result2 = new String[]{pair.getKey().toString() + "+" +s[k] + "=" + w};
                 writer2.writeNext(result2);
 
-            distance = d.get(path.firstElement());
-            if (j == 0) {
-                min_distance = distance;
+                distance = d.get(path.firstElement());
+                // if (j == 0) {
+                //   min_distance = distance;
+                //}
+                if (min_distance == 0) {
+                    min_distance = distance;
+                }
 
+                //если текущее расстояние меньше минмального,запоминаем ресторан
+                if (distance <= min_distance) {
+                    //чтобы не обращаться к тому же ресторану, с которого мы ищем кратчайший путь ??
+                    if (distance != 0) {
+                        current_way = j;
+                        min_distance = distance;
+                    }
+                }
+                //  System.out.println("минимальная дистанция=" + min_distance);
             }
-            //если текущее расстояние меньше минмального,запоминаем ресторан
-            if(distance<min_distance){
-                current_way=j;
-                min_distance=distance;
-            }
-          //  System.out.println("минимальная дистанция=" + min_distance);
         }
+        minimal_distance=min_distance;
         writer2.close();
-        if(min_distance==2.0E9){
+        if(min_distance==2000000000000.0){
             near_restaurant=null;
             your_way=null;
         }
@@ -715,6 +797,87 @@ public class LogicClass extends DefaultHandler {
         }
 
 
+    }
+    public static void neighbor_algorithm(String from) throws IOException {
+        Vector<Long> way = new Vector<Long>(); //для восстановления пути
+        main_way = new LinkedHashMap<String, String>(); //весь путь
+        visited_point = new HashMap<Long, Boolean>(); //посещенные
+        Map<String, Double> distance = new HashMap<String, Double>();//матрица расстояний
+        Set<Long> queue = new LinkedHashSet<Long>(); //в порядке добавления
+        int step=1;
+        long current=0;
+        String to="";
+
+        queue.add(Long.valueOf(from));
+        while ((!queue.isEmpty())&&(main_way.size()!=10)) {
+            current=queue.iterator().next();
+            queue.remove(current);
+            Dijkstra(H2,result_map,String.valueOf(current),Graph.restaurants); //нашли ближайший ресторан, получили расстояние
+          //получили путь
+                String[] points = your_way.split("-");
+                String []id_points = new String[points.length];
+                k=0;
+                for(int i=points.length-1;i>-1;i--){
+                    id_points[k]=points[i];
+                    k++;
+                }
+
+            distance.put(current +","+ near_restaurant, minimal_distance); //заполнили матрицу расстояний
+            //вставлем часть пути в весь путь
+            to=near_restaurant;
+            for(int i=0;i<id_points.length;i++) {
+                if(main_way.containsKey(current +"->"+to)) {
+                    main_way.put(current +"->"+to, main_way.get(current+"->"+to)+"-"+ id_points[i]); //запомнили путь для отображения
+                }
+                else{
+                    main_way.put(current+"->"+to, id_points[i]); //запомнили путь для отображения
+                }
+            }
+
+            visited_point.put(Long.valueOf(near_restaurant), true); //пометили как посещенный
+            if(main_way.size()!=11) {
+                queue.add(Long.valueOf(to)); //начинаем алгоритм с него
+            }
+            step++;
+        }
+        //обратный путь
+        to_first_point(H2,result_map,String.valueOf(to),String.valueOf(from));
+        //получили путь
+        String[] points = your_way.split("-");
+        String []id_points = new String[points.length];
+        k=0;
+        for(int i=points.length-1;i>-1;i--){
+            id_points[k]=points[i];
+            k++;
+        }
+        distance.put(current +","+ near_restaurant, minimal_distance); //заполнили матрицу расстояний
+        //вставлем часть пути в весь путь
+
+        for(int i=0;i<id_points.length;i++) {
+            if(main_way.containsKey(to +"->"+from)) {
+                main_way.put(to +"->"+from, main_way.get(to +"->"+from)+"-"+ id_points[i]); //запомнили путь для отображения
+            }
+            else{
+                main_way.put(to +"->"+from, id_points[i]); //запомнили путь для отображения
+            }
+        }
+        to=near_restaurant;
+        distance.put(to +"->"+from, minimal_distance);
+        String csv7= "data7.csv";
+        CSVWriter writer = new CSVWriter(new FileWriter(csv7));
+        Iterator iterator3 = main_way.entrySet().iterator();
+        String[] ColumnNamesList = {"Id вершин", "=" + "Путь"};
+        writer.writeNext(ColumnNamesList);
+        while (iterator3.hasNext()) {
+            Map.Entry pair = (Map.Entry) iterator3.next();
+            String[] s1 = pair.getKey().toString().split("->");
+            String s2 = pair.getValue().toString();
+
+            String[] result = new String[]{s1[0] + "->"+s1[1]+"=" + s2};
+            writer.writeNext(result);
+        }
+        writer.close();
+        System.out.println("/end/");
     }
 
 
