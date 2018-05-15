@@ -300,8 +300,8 @@ System.out.println("количество="+col);
                 x = (int) getX;
                 y = (int) getY;
                 try {
-                  //  search_way(x,y);
-                    search_way_from(x,y); //3 задание
+                   search_way(x,y);
+                   // search_way_from(x,y); //3 задание
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

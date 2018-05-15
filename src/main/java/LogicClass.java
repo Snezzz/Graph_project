@@ -66,7 +66,7 @@ public class LogicClass extends DefaultHandler {
     static public double[][] distance2;
     static double minimal_distance;
     static Map<String, String> main_way;
-    static Map<Long, Boolean> visited_point;
+    static Map<Long, Boolean> visited_point= new HashMap<Long, Boolean>(); //посещенные;
     public static void go() throws ParserConfigurationException, IOException, SAXException {
 
 
@@ -731,6 +731,7 @@ public class LogicClass extends DefaultHandler {
         CSVWriter writer2 = new CSVWriter(new FileWriter(csv3));
         //для каждой конечной точки
         for(int j=0;j<t_length;j++) {
+            
             if (!visited_point.containsKey(Long.valueOf(t[j]))) {
                 path = new Vector<Long>();
                 //получаем предков до начальной точки
@@ -801,7 +802,7 @@ public class LogicClass extends DefaultHandler {
     public static void neighbor_algorithm(String from) throws IOException {
         Vector<Long> way = new Vector<Long>(); //для восстановления пути
         main_way = new LinkedHashMap<String, String>(); //весь путь
-        visited_point = new HashMap<Long, Boolean>(); //посещенные
+
         Map<String, Double> distance = new HashMap<String, Double>();//матрица расстояний
         Set<Long> queue = new LinkedHashSet<Long>(); //в порядке добавления
         int step=1;
